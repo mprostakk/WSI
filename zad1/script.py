@@ -173,13 +173,13 @@ class GradientPlotter:
         self.add_history_points()
         self.add_contours(x, y, z)
 
-        self.ax.colorbar()
-
         self.ax.plot()
 
     def add_title(self):
         start_point = self._gradient_descent.start_point()
-        title = f"Point: [{start_point[0]}, {start_point[1]}] / Beta: {self._gradient_descent._beta}"
+        title = (
+            f"Point: [{start_point[0]}, {start_point[1]}] / Beta: {self._gradient_descent._beta}"
+        )
         self.ax.set_title(title)
 
     def add_heatmap(self, x, y, z):
@@ -224,6 +224,7 @@ def main():
         plotter.plot()
 
     plt.show()
+
 
 if __name__ == "__main__":
     main()
