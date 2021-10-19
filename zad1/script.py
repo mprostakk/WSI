@@ -69,6 +69,7 @@ class GradientDescent:
         self._iterations = iterations
         self._current_iteration = 0
         self._beta = beta
+        self._name = "Gradient"
         self._history_points: List[Vector2D] = list()
         self._history_time_in_microseconds: List[float] = list()
         self._start_run_datetime: Optional[datetime] = None
@@ -85,7 +86,7 @@ class GradientDescent:
     def start_point(self) -> Vector2D:
         return self._history_points[0]
 
-    def run(self, start_point: Vector2D):
+    def run(self, start_point: Vector2D) -> None:
         self.add_point_to_history(start_point)
         self._start_run_datetime = datetime.now()
         point = start_point
@@ -96,18 +97,19 @@ class GradientDescent:
             end_time = datetime.now()
             self._history_time_in_microseconds.append((end_time - start_time).microseconds)
 
-            if (
-                np.abs(point[0] - new_point[0]) < self._epsilon
-                or np.abs(point[1] - new_point[1]) < self._epsilon
-            ):
+            if self.check_for_epsilon(point, new_point):
                 logging.info("Epsilon!")
                 break
-
-            logging.info(f"New point found: {new_point[0]}, {new_point[1]}. Value: {f(new_point)}")
 
             self.add_point_to_history(new_point)
             self.next_iter()
             point = new_point
+
+    def check_for_epsilon(self, point, new_point) -> bool:
+        return (
+            np.abs(point[0] - new_point[0]) < self._epsilon
+            and np.abs(point[1] - new_point[1]) < self._epsilon
+        )
 
     def check_for_stop(self) -> bool:
         if self._current_iteration > self._iterations:
@@ -125,11 +127,15 @@ class GradientDescent:
     def next_iter(self) -> None:
         self._current_iteration += 1
 
-    def add_point_to_history(self, point: Vector2D):
+    def add_point_to_history(self, point: Vector2D) -> None:
         self._history_points.append(point)
 
 
 class SteepestGradientDescent(GradientDescent):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self._name = "Steepest Gradient"
+
     def gradient(self, point: Vector2D) -> Vector2D:
         return -f_dx(point), -f_dy(point)
 
@@ -140,6 +146,10 @@ class SteepestGradientDescent(GradientDescent):
 
 
 class NewtonGradientDescent(GradientDescent):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self._name = "Newton"
+
     def gradient(self, point: Vector2D) -> Vector2D:
         return -f_dx(point), -f_dy(point)
 
@@ -152,8 +162,6 @@ class NewtonGradientDescent(GradientDescent):
 
         d = hessian_inv.dot(gradient_vector)
 
-        logging.info(f"{gradient[0]}, {gradient[1]}")
-
         new_point = (point[0] + self._beta * d[0], point[1] + self._beta * d[1])
         return new_point
 
@@ -164,7 +172,7 @@ class GradientPlotter:
         self.fig = fig
         self.ax = ax
 
-    def plot(self):
+    def plot(self) -> None:
         y, x = np.meshgrid(np.linspace(-5, 5, 100), np.linspace(-5, 5, 100))
         z = f((x, y))
 
@@ -175,25 +183,27 @@ class GradientPlotter:
 
         self.ax.plot()
 
-    def add_title(self):
+    def add_title(self) -> None:
         start_point = self._gradient_descent.start_point()
         title = (
-            f"Point: [{start_point[0]}, {start_point[1]}] / Beta: {self._gradient_descent._beta}"
+            f"Point: [{start_point[0]}, {start_point[1]}] / "
+            f"Beta: {self._gradient_descent._beta} /"
+            f" Iter: {self._gradient_descent._current_iteration}"
         )
         self.ax.set_title(title)
 
-    def add_heatmap(self, x, y, z):
+    def add_heatmap(self, x, y, z) -> None:
         c = self.ax.pcolor(
             x,
             y,
             z,
-            norm=colors.SymLogNorm(linthresh=1, linscale=0.1, vmin=z.min(), vmax=z.max(), base=10),
+            norm=colors.SymLogNorm(linthresh=1, linscale=0.1, base=10),
             cmap="viridis_r",
         )
 
         self.fig.colorbar(c, ax=self.ax)
 
-    def add_history_points(self):
+    def add_history_points(self) -> None:
         x_points = [p[0] for p in self._gradient_descent._history_points]
         y_points = [p[1] for p in self._gradient_descent._history_points]
         self.ax.plot(x_points, y_points, "-o", color="red")
@@ -202,23 +212,40 @@ class GradientPlotter:
         y_start = [self._gradient_descent._history_points[0][1]]
         self.ax.plot(x_start, y_start, "-o", color="pink")
 
-    def add_contours(self, x, y, z):
+    def add_contours(self, x, y, z) -> None:
         self.ax.contour(x, y, z, 20)
 
 
-def main():
+def main() -> None:
     points: List[Vector2D] = [(1, 0), (-2, -2), (4, 4), (-3, 2), (0, 0), (4, 0)]
+    # beta_list = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.03]  # For steepest
+    # beta_list = [0.005, 0.01, 0.1, 0.5, 1.0, 2.0]  # For newton
+    beta = 1.0
 
     fig, axs = plt.subplots(3, 2, figsize=(8, 10), constrained_layout=True)
+    # fig.suptitle("Steepest gradient descent")
     fig.suptitle("Newton method")
     axes = axs.flat
 
+    max_iterations = 5000
+    max_microseconds = 100000000
+
+    # point = (0, 0)  # For steepest
+    # point = (3, 4)  # For newton
+
+    # for i, beta in enumerate(beta_list):
     for i, point in enumerate(points):
-        # gradient = SteepestGradientDescent(iterations=200, beta=0.01)
-        gradient = NewtonGradientDescent(iterations=100, beta=0.1)
+        # gradient = SteepestGradientDescent(
+        #     iterations=max_iterations, beta=beta, max_run_time_in_microseconds=max_microseconds
+        # )
+
+        gradient = NewtonGradientDescent(
+            iterations=max_iterations, beta=beta, max_run_time_in_microseconds=max_microseconds
+        )
         gradient.run(point)
 
-        print(gradient._history_time_in_microseconds)
+        logging.info(np.median(gradient._history_time_in_microseconds))
+        logging.info(gradient._history_points[-1])
 
         plotter = GradientPlotter(gradient, fig=fig, ax=axes[i])
         plotter.plot()
