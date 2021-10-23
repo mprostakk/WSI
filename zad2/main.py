@@ -2,7 +2,8 @@ import logging
 import sys
 
 import networkx as nx
-from draw import draw_best
+import numpy as np
+from draw import draw_best, draw_scatter
 from mutation import mutation
 from population import init_population
 from score import rate_population, rating
@@ -52,7 +53,7 @@ def genetic(
 
     while generation < number_of_generations:
         selected_population = selection(population, graph)
-        mutated_population = mutation(selected_population)
+        mutated_population = mutation(selected_population, probability=mutation_probability)
         score = rating(mutated_population, graph)
 
         population = mutated_population
@@ -74,35 +75,33 @@ def genetic(
         generation += 1
 
     print("")
-    draw_best(best_population, graph)
-
-
-def draw_scatter():
-    pass
-    # print(ratings)
-    # x = []
-    # y = []
-    # i = 0
-    # for population_rating in ratings:
-    #     for r in population_rating:
-    #         x.append(i)
-    #         y.append(r)
-    #     i += 1
-    # plt.scatter(x, y)
-    # plt.show()
+    draw_best(
+        best_population,
+        graph,
+        number_of_generations,
+        generation,
+        number_of_population,
+        mutation_probability,
+    )
+    draw_scatter(ratings, number_of_population, mutation_probability)
 
 
 def main():
-    # graph = numpy.array([
-    #     [0, 1, 0, 0, 0],
-    #     [1, 0, 1, 1, 0],
-    #     [0, 1, 0, 0, 0],
-    #     [0, 1, 0, 0, 1],
-    #     [0, 0, 0, 1, 0],
-    # ])
+    sanity_graph = np.array(
+        [
+            [0, 1, 0, 0, 0],
+            [1, 0, 1, 1, 0],
+            [0, 1, 0, 0, 0],
+            [0, 1, 0, 0, 1],
+            [0, 0, 0, 1, 0],
+        ]
+    )
+
+    # https://www.javatpoint.com/graph-theory-types-of-graphs
+
     # g = nx.fast_gnp_random_graph(
-    #     NUMBER_OF_VERTICES,
-    #     0.3,
+    #     25,
+    #     0.15,
     #     seed=1
     # )
     g = nx.grid_2d_graph(5, 5)
@@ -110,8 +109,8 @@ def main():
 
     vertices = 25
     number_of_generations = 1000
-    number_of_population = 20
-    mutation_probability = 0.4
+    number_of_population = 100
+    mutation_probability = 0.1
     number_of_covered_vertices = 12
 
     genetic(

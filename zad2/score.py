@@ -2,14 +2,14 @@ import numpy as np
 from schemas import Population
 
 
-def individual_score(individual, graph):
+def individual_score(individual, graph) -> int:
     g = graph.copy()
     for i, x in enumerate(individual):
         if x == 1:
             g[i, :] = 0
             g[:, i] = 0
 
-    return g.sum() // 2
+    return int(g.sum() // 2)
 
 
 def rating(population: Population, graph):

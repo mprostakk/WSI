@@ -7,6 +7,9 @@ from score import individual_score
 def selection(population: Population, graph):
     # Tournament selection
 
+    # TODO - losowanie bez zwracania
+    # k = 2
+
     new_population = []
     number_of_tournaments = len(population)
 
