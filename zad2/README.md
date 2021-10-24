@@ -14,20 +14,10 @@ rozwiązań przy ograniczonym budżecie
 Opisać zachowanie algorytmu dla różnych rodzajów danych wejściowych 
 oraz wpływ zmiany parametrów
 
-## Mutacja
-W przypadku mutacji należy pamiętać o tym, że występują tam 2 różne 
-prawdopodobieństwa. Po pierwsze czy dany element ulegnie mutacji 
-(nie wszystkie dzieci powinny być mutantami rodziców!). Po drugie, 
-który fragment dziecka należy zmutować (np. dla sekwencji miast, które 
-i ile miast zmienić)
-
 ## Sukcesja
 Dodatkowo startowa liczność populacji powinna być znacznie większa 
 od rozmiaru problemu, którym się zajmujemy.  
 
-Na potrzebę każdego z tych zadań warto zastanowić się co stanowi 
-element populacji i w jaki sposób będziemy modyfikować jego strukturę 
-w kolejnych iteracjach
 
 ## Dodatkowe info
 wyznaczenie miar takich jak średnia czy odchylenie standardowe 
@@ -43,5 +33,4 @@ Sugerowane grafy:
 - graf losowy (graf pełny z usuniętymi 50-70% krawędzi)
 
 ## TODO
-
 - Zapisać min / max / standardowe odchylenie

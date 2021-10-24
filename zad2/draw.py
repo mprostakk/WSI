@@ -1,17 +1,9 @@
-import matplotlib.pyplot as plt
 import networkx as nx
 from schemas import Population
 from score import individual_score
 
 
-def draw_best(
-    population: Population,
-    graph,
-    max_generations,
-    number_of_generations,
-    number_of_population,
-    mutation_probability,
-):
+def draw_best(ax, population: Population, graph):
     min_score = individual_score(population[0], graph)
     min_individual = population[0]
 
@@ -37,21 +29,10 @@ def draw_best(
                 G[edge[0]][edge[1]]["color"] = "black"
 
     edge_color_list = [G[e[0]][e[1]].get("color", "red") for e in G.edges()]
-
-    plt.title(
-        f"Score: {min_score} | "
-        f"Generations: {number_of_generations}/{max_generations} | "
-        f"Population: {number_of_population} | "
-        f"Mutation: {mutation_probability}"
-    )
-
-    nx.draw(G, node_color=color_map, with_labels=True, edge_color=edge_color_list)
-    plt.show()
-
-    print(f"Finished with best score {min_score}")
+    nx.draw(G, node_color=color_map, with_labels=True, edge_color=edge_color_list, ax=ax)
 
 
-def draw_scatter(ratings, number_of_population, mutation_probability):
+def draw_scatter(ax, ratings):
     x = []
     y = []
     i = 0
@@ -61,11 +42,8 @@ def draw_scatter(ratings, number_of_population, mutation_probability):
             y.append(r)
         i += 1
 
-    plt.title(f"Population: {number_of_population} | Mutation: {mutation_probability}")
+    ax.set_xlabel("Generations")
+    ax.set_ylabel("Score")
 
-    plt.xlabel("Generations")
-    plt.ylabel("Score")
-
-    plt.ylim(ymin=-1, ymax=max(y))
-    plt.scatter(x, y, s=0.5)
-    plt.show()
+    ax.set_ylim(ymin=-1, ymax=max(y))
+    ax.scatter(x, y, s=0.5)

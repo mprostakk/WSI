@@ -1,6 +1,8 @@
 import logging
 import sys
+from datetime import datetime
 
+import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from draw import draw_best, draw_scatter
@@ -37,6 +39,7 @@ def genetic(
     number_of_generations: int,
     number_of_population: int,
     mutation_probability: float,
+    mutation_amount_probability: float,
     number_of_covered_vertices: int,
 ):
     population = init_population(
@@ -45,6 +48,7 @@ def genetic(
         number_of_covered_vertices=number_of_covered_vertices,
     )
 
+    history_time_in_microseconds = []
     ratings = []
 
     generation = 0
@@ -52,8 +56,14 @@ def genetic(
     best_population = population
 
     while generation < number_of_generations:
+        start_time = datetime.now()
+
         selected_population = selection(population, graph)
-        mutated_population = mutation(selected_population, probability=mutation_probability)
+        mutated_population = mutation(
+            selected_population,
+            probability=mutation_probability,
+            amount_probability=mutation_amount_probability,
+        )
         score = rating(mutated_population, graph)
 
         population = mutated_population
@@ -63,27 +73,37 @@ def genetic(
         sys.stdout.write("\rGeneration %d" % generation)
         sys.stdout.flush()
 
-        if best_score == 0:
-            print("\nFound a solution!")
-            break
-
         if score < best_score:
             best_score = score
             best_population = population
             print(f"\nNew best Score: {score}")
 
+        end_time = datetime.now()
+        history_time_in_microseconds.append((end_time - start_time).microseconds)
+
+        if best_score == 0:
+            print("\nFound a solution!")
+            break
+
         generation += 1
 
     print("")
-    draw_best(
-        best_population,
-        graph,
-        number_of_generations,
-        generation,
-        number_of_population,
-        mutation_probability,
+    print(np.median(history_time_in_microseconds))
+    print("")
+
+    fig, axs = plt.subplots(2, 1, figsize=(8, 10), constrained_layout=True)
+    fig.suptitle(
+        f"Score: {best_score} | "
+        f"Generations: {generation}/{number_of_generations} | "
+        f"Population: {number_of_population}\n"
+        f"Mutation: {mutation_probability} | "
+        f"Mutation_amount: {mutation_amount_probability}",
     )
-    draw_scatter(ratings, number_of_population, mutation_probability)
+
+    draw_best(axs[0], best_population, graph)
+    draw_scatter(axs[1], ratings)
+    draw_scatter(axs[1], ratings)
+    plt.show()
 
 
 def main():
@@ -105,13 +125,16 @@ def main():
     #     seed=1
     # )
     g = nx.grid_2d_graph(5, 5)
+    # g = nx.complete_graph(7)
+    # g = nx.complete_bipartite_graph(5, 5)
     graph = nx.convert_matrix.to_numpy_array(g)
 
     vertices = 25
     number_of_generations = 1000
     number_of_population = 100
     mutation_probability = 0.1
-    number_of_covered_vertices = 12
+    mutation_amount_probability = 1.0
+    number_of_covered_vertices = 24
 
     genetic(
         graph=graph,
@@ -119,6 +142,7 @@ def main():
         number_of_generations=number_of_generations,
         number_of_population=number_of_population,
         mutation_probability=mutation_probability,
+        mutation_amount_probability=mutation_amount_probability,
         number_of_covered_vertices=number_of_covered_vertices,
     )
 
