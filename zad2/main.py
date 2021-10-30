@@ -79,7 +79,7 @@ def genetic(
             print(f"\nNew best Score: {score}")
 
         end_time = datetime.now()
-        history_time_in_microseconds.append((end_time - start_time).microseconds)
+        history_time_in_microseconds.append((end_time - start_time).total_seconds()*1000)
 
         if best_score == 0:
             print("\nFound a solution!")
@@ -101,7 +101,6 @@ def genetic(
     )
 
     draw_best(axs[0], best_population, graph)
-    draw_scatter(axs[1], ratings)
     draw_scatter(axs[1], ratings)
     plt.show()
 
