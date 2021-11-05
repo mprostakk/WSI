@@ -16,11 +16,9 @@ def print_board(board):
     print()
 
 
-def setup_board(board):
-    first_row = board[0]
-    last_row = board[-1]
+def print_board2(board):
+    for row in board:
+        s = ''.join(row)
+        print(s)
 
-    for i in range(1, 8, 2):
-        first_row[i] = 'O'
-
-    last_row[0] = 'W'
+    print('-'*10)
