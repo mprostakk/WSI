@@ -1,4 +1,5 @@
 import random
+from copy import copy
 
 from board import Board, get_wolf_boards, get_sheep_boards
 
@@ -8,25 +9,25 @@ def min_max(board: Board, d: int, maximizing: bool = True):
         return board.heuristic(), None
 
     if maximizing:
-        max_value = -10
+        max_value = -1000
         best_board = None
 
         for new_board in get_wolf_boards(board):
             value, _ = min_max(new_board, d - 1, False)
             if value > max_value:
                 max_value = value
-                best_board = new_board
+                best_board = copy(new_board)
 
         return max_value, best_board
     else:
-        min_value = 10
+        min_value = 1000
         best_board = None
 
         for new_board in get_sheep_boards(board):
             value, _ = min_max(new_board, d - 1, True)
             if value < min_value:
                 min_value = value
-                best_board = new_board
+                best_board = copy(new_board)
 
         return min_value, best_board
 
@@ -38,7 +39,8 @@ def main():
 
     while not board.is_terminal():
         if wolf_moves:
-            min_max_value, new_board = min_max(board, 8, maximizing=True)
+            min_max_value, new_board = min_max(board, 4, maximizing=True)
+            print(min_max_value)
 
             if new_board is not None:
                 board = new_board
@@ -53,6 +55,13 @@ def main():
 
         board.draw()
         wolf_moves = not wolf_moves
+
+    if board.did_wolf_win():
+        print("Wolf won")
+    elif board.did_sheep_win():
+        print("Sheep won")
+    else:
+        print("Draw?")
 
 
 if __name__ == "__main__":

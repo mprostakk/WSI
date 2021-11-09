@@ -5,7 +5,7 @@ def init_board():
     return rows
 
 
-def print_board(board):
+def print_board2(board):
     s = ''
     for row in board:
         s = '|'.join([f' {x} ' for x in row])
@@ -16,7 +16,7 @@ def print_board(board):
     print()
 
 
-def print_board2(board):
+def print_board1(board):
     for row in board:
         s = ''.join(row)
         print(s)

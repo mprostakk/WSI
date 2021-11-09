@@ -58,11 +58,16 @@ class Board:
 
     def heuristic(self):
         if self.did_wolf_win():
-            return 1
+            return 100
         if self.did_sheep_win():
-            return -1
+            return -100
 
-        return 0
+        wolf_points = 7 - self.wolf[0]
+        wolf_points *= 10
+
+        sheep_points = sum([x[0] for x in self.sheep])
+
+        return wolf_points - sheep_points
 
 
 def generate_new_points_from_point(point) -> List:
@@ -78,6 +83,13 @@ def generate_new_points_going_down(point):
     return [
         (point[0] + 1, point[1] + 1),
         (point[0] + 1, point[1] - 1),
+    ]
+
+
+def generate_new_points_going_up(point):
+    return [
+        (point[0] - 1, point[1] + 1),
+        (point[0] - 1, point[1] - 1),
     ]
 
 
