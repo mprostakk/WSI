@@ -1,5 +1,5 @@
-from typing import List
 from copy import copy
+from typing import List
 
 from helpers import init_board, print_board2
 

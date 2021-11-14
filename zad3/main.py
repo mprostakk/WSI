@@ -1,9 +1,9 @@
 import random
+from collections import defaultdict
 
 import pygame
-
-from ai import WolfAI, SheepAI
-from board import Board, get_wolf_boards, get_sheep_boards
+from ai import SheepAI, WolfAI
+from board import Board, get_sheep_boards, get_wolf_boards
 from board_pygame import BoardPygame
 
 
@@ -20,12 +20,13 @@ def main():
     while not board.is_terminal():
         if wolf_moves:
             wolf_ai = WolfAI()
-            d = {}
-            for wolf_move in get_wolf_boards(board):
-                min_max_value = wolf_ai.min_max(wolf_move, 2, maximizing=False)
-                d[min_max_value] = wolf_move
+            d = defaultdict(list)
 
-            new_board = d[max(d)]
+            for wolf_move in get_wolf_boards(board):
+                min_max_value = wolf_ai.min_max(wolf_move, 1, maximizing=False)
+                d[min_max_value].append(wolf_move)
+
+            new_board = random.choice(d[max(d)])
             board = new_board
             print("Wolf: ", max(d))
 
@@ -37,12 +38,13 @@ def main():
                 board = random.choice(sheep_boards)
             else:
                 sheep_ai = SheepAI()
-                d = {}
+                d = defaultdict(list)
+
                 for sheep_move in get_sheep_boards(board):
                     min_max_value = sheep_ai.min_max(sheep_move, 6, maximizing=True)
-                    d[min_max_value] = sheep_move
+                    d[min_max_value].append(sheep_move)
 
-                new_board = d[min(d)]
+                new_board = random.choice(d[min(d)])
                 board = new_board
 
                 print("Sheep: ", min(d))

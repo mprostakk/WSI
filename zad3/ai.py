@@ -1,6 +1,6 @@
 import math
 
-from board import Board, get_wolf_boards, get_sheep_boards
+from board import Board, get_sheep_boards, get_wolf_boards
 
 
 class AI:
