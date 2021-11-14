@@ -1,3 +1,4 @@
+import random
 from copy import copy
 from typing import List
 
@@ -7,7 +8,8 @@ from helpers import init_board, print_board2
 class Board:
     def __init__(self) -> None:
         # Real game points
-        self.wolf = (7, 0)
+        x_wolf = random.randint(0, 3) * 2
+        self.wolf = (7, x_wolf)
         self.sheep = [(0, 1), (0, 3), (0, 5), (0, 7)]
 
     def draw(self) -> None:
