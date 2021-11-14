@@ -15,13 +15,13 @@ class BoardPygame:
         self.game_display = pygame.display.set_mode((800, 800))
 
     def draw_board(self, board: Board):
-        self.game_display.fill(self.white)
+        self.game_display.fill(self.black)
 
         for x in range(8):
             for y in range(x % 2, 8, 2):
                 pygame.draw.rect(
                     self.game_display,
-                    self.black,
+                    self.white,
                     (x * self.size, y * self.size, self.size, self.size),
                 )
 
