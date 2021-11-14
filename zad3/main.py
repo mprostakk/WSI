@@ -1,60 +1,59 @@
 import random
-from copy import copy
 
+import pygame
+
+from ai import WolfAI, SheepAI
 from board import Board, get_wolf_boards, get_sheep_boards
-
-
-def min_max(board: Board, d: int, maximizing: bool = True):
-    if board.is_terminal() or d == 0:
-        return board.heuristic(), None
-
-    if maximizing:
-        max_value = -1000
-        best_board = None
-
-        for new_board in get_wolf_boards(board):
-            value, _ = min_max(new_board, d - 1, False)
-            if value > max_value:
-                max_value = value
-                best_board = copy(new_board)
-
-        return max_value, best_board
-    else:
-        min_value = 1000
-        best_board = None
-
-        for new_board in get_sheep_boards(board):
-            value, _ = min_max(new_board, d - 1, True)
-            if value < min_value:
-                min_value = value
-                best_board = copy(new_board)
-
-        return min_value, best_board
+from board_pygame import BoardPygame
 
 
 def main():
     wolf_moves = True
+    sheep_is_ai = True
     board = Board()
     board.draw()
 
+    pygame.init()
+
+    board_pygame = BoardPygame()
+
     while not board.is_terminal():
         if wolf_moves:
-            min_max_value, new_board = min_max(board, 4, maximizing=True)
-            print(min_max_value)
+            wolf_ai = WolfAI()
+            d = {}
+            for wolf_move in get_wolf_boards(board):
+                min_max_value = wolf_ai.min_max(wolf_move, 2, maximizing=False)
+                d[min_max_value] = wolf_move
 
-            if new_board is not None:
-                board = new_board
-            else:
-                board = random.choice(get_wolf_boards(board))
+            new_board = d[max(d)]
+            board = new_board
+            print("Wolf: ", max(d))
 
         else:
-            sheep_boards = get_sheep_boards(board)
-            if len(sheep_boards) == 0:
-                break
-            board = random.choice(sheep_boards)
+            if not sheep_is_ai:
+                sheep_boards = get_sheep_boards(board)
+                if len(sheep_boards) == 0:
+                    break
+                board = random.choice(sheep_boards)
+            else:
+                sheep_ai = SheepAI()
+                d = {}
+                for sheep_move in get_sheep_boards(board):
+                    min_max_value = sheep_ai.min_max(sheep_move, 6, maximizing=True)
+                    d[min_max_value] = sheep_move
 
-        board.draw()
+                new_board = d[min(d)]
+                board = new_board
+
+                print("Sheep: ", min(d))
+
+        # board.draw()
+        pygame.time.wait(200)
+        board_pygame.draw_board(board)
+
         wolf_moves = not wolf_moves
+
+    pygame.quit()
 
     if board.did_wolf_win():
         print("Wolf won")

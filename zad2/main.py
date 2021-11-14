@@ -79,7 +79,7 @@ def genetic(
             print(f"\nNew best Score: {score}")
 
         end_time = datetime.now()
-        history_time_in_microseconds.append((end_time - start_time).total_seconds()*1000)
+        history_time_in_microseconds.append((end_time - start_time).total_seconds() * 1000)
 
         if best_score == 0:
             print("\nFound a solution!")

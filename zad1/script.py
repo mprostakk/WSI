@@ -141,7 +141,10 @@ class SteepestGradientDescent(GradientDescent):
 
     def generate_new_point(self, point: Vector2D) -> Vector2D:
         gradient = self.gradient(point)
-        new_point = (point[0] + self._beta * gradient[0], point[1] + self._beta * gradient[1])
+        new_point = (
+            point[0] + self._beta * gradient[0],
+            point[1] + self._beta * gradient[1],
+        )
         return new_point
 
 
@@ -240,7 +243,9 @@ def main() -> None:
         # )
 
         gradient = NewtonGradientDescent(
-            iterations=max_iterations, beta=beta, max_run_time_in_microseconds=max_microseconds
+            iterations=max_iterations,
+            beta=beta,
+            max_run_time_in_microseconds=max_microseconds,
         )
         gradient.run(point)
 
