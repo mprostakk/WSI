@@ -9,7 +9,9 @@ from board_pygame import BoardPygame
 
 def main():
     wolf_moves = True
+
     sheep_is_ai = True
+    wolf_is_ai = True
     board = Board()
 
     d_wolf = 6
@@ -20,20 +22,27 @@ def main():
     pygame.font.init()
     board_pygame = BoardPygame()
 
+    score = None
+
     while not board.is_terminal():
         if wolf_moves:
-            wolf_ai = WolfAI()
-            d = defaultdict(list)
+            if not wolf_is_ai:
+                wolf_boards = get_wolf_boards(board)
+                if len(wolf_boards) == 0:
+                    break
+                board = random.choice(wolf_boards)
+            else:
+                wolf_ai = WolfAI()
+                d = defaultdict(list)
 
-            for wolf_move in get_wolf_boards(board):
-                min_max_value = wolf_ai.min_max(wolf_move, d_wolf, maximizing=False)
-                d[min_max_value].append(wolf_move)
+                for wolf_move in get_wolf_boards(board):
+                    min_max_value = wolf_ai.min_max(wolf_move, d_wolf, maximizing=False)
+                    d[min_max_value].append(wolf_move)
 
-            new_board = random.choice(d[max(d)])
-            score = max(d)
-            board = new_board
-            print("Wolf: ", max(d))
-
+                new_board = random.choice(d[max(d)])
+                score = max(d)
+                board = new_board
+                print("Wolf: ", max(d))
         else:
             if not sheep_is_ai:
                 sheep_boards = get_sheep_boards(board)
