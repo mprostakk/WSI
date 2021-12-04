@@ -1,4 +1,4 @@
-import math
+import random
 from typing import Optional
 
 import pandas as pd
@@ -8,20 +8,20 @@ import numpy as np
 dataset = "data/car.data"
 ATTRIBUTES = ['buying', 'maint', 'doors', 'persons', 'lug_boot', 'safety']
 Y_ATTRIBUTE = 'class'
-
 Y_CLASSES = ['unacc', 'acc', 'good', 'vgood']
 
 # dataset = "data/example.data"
 # ATTRIBUTES = ['x1', 'x2']
 # Y_ATTRIBUTE = 'y'
+# Y_CLASSES = ['0', '1']
 
 
 class Node:
     def __init__(self):
-        self.children = []
-        self.value = ""
+        self.children = {}
+        self.value = ''
         self.is_leaf = False
-        self.predictions = []
+        self.predictions = ''
 
 
 def hot_encode_data(data, attributes: list[str]):
@@ -90,22 +90,17 @@ def id3(df, attributes):
         sub_df = df.where(df[best_attribute] == unique_value)
         sub_df = sub_df.dropna()
 
-        e = entropy(sub_df)
-        if e == 0.0:
+        if entropy(sub_df) == 0.0:
             new_node = Node()
-            new_node.value = str(unique_value)
             new_node.is_leaf = True
 
-            new_node.predictions = np.unique(sub_df[Y_ATTRIBUTE])
-            node.children.append(new_node)
+            new_node.predictions = np.unique(sub_df[Y_ATTRIBUTE])[0]
+            node.children[str(unique_value)] = new_node
         else:
-            dummy_node = Node()
-            dummy_node.value = str(unique_value)
             new_attributes = attributes.copy()
             new_attributes.remove(best_attribute)
             child = id3(sub_df, new_attributes)
-            dummy_node.children.append(child)
-            node.children.append(dummy_node)
+            node.children[str(unique_value)] = child
 
     return node
 
@@ -114,13 +109,15 @@ def print_tree(root_node: Node, depth: int = 0):
     print('\t' * depth, end='')
     print(root_node.value, end='')
     if root_node.is_leaf:
-        print(' -> ', root_node.predictions)
+        print(root_node.predictions)
     print()
-    for child in root_node.children:
+    for key, child in root_node.children.items():
+        print('\t' * depth, end='')
+        print(f'Key: {key}')
         print_tree(child, depth+1)
 
 
-def predict(node, row):
+def predict(node: Node, row):
     if node.is_leaf:
         return node.predictions
     else:
@@ -134,15 +131,11 @@ def predict(node, row):
             print(f'error! {node.value}')
             return
 
-        for child in node.children:
-            if child.value == value:
-                if child.is_leaf:
-                    return predict(child, row)
-                else:
-                    return predict(child.children[0], row)
+        for key, child in node.children.items():
+            if key == value:
+                return predict(child, row)
         else:
-            print('Error for!')
-            return
+            return random.choice(Y_CLASSES)
 
 
 def calculate_measures(confusion_matrix):
@@ -158,10 +151,10 @@ def calculate_measures(confusion_matrix):
         recall = tp / (tp + fn)
 
         measures[y_class] = {
-            'tp': tp,
-            'fn': fn,
-            'fp': fp,
-            'tn': tn,
+            # 'tp': tp,
+            # 'fn': fn,
+            # 'fp': fp,
+            # 'tn': tn,
             'recall': recall,
             'fallout': fp / (fp + tn),
             'precision': precision,
@@ -201,7 +194,6 @@ def main():
     train_data, test_data = split_data(data, 4, 0)
 
     root_node = id3(train_data, ATTRIBUTES)
-
     # print_tree(root_node)
 
     confusion_matrix = np.zeros((len(Y_CLASSES), len(Y_CLASSES)))
@@ -209,15 +201,19 @@ def main():
     for index, row in test_data.iterrows():
         row_as_dict = {attribute: row[attribute] for attribute in ATTRIBUTES}
         prediction = predict(root_node, row_as_dict)
+        ground_truth = row[Y_ATTRIBUTE]
 
         if prediction is not None:
-            prediction = prediction[0]
-            ground_truth = row[Y_ATTRIBUTE]
             confusion_matrix[Y_CLASSES.index(prediction)][Y_CLASSES.index(ground_truth)] += 1
+        else:
+            print('No prediction')
 
     measures = calculate_measures(confusion_matrix)
     for measure in measures:
         print(measure, measures[measure])
+
+    df_confusion_matrix = pd.DataFrame(data=confusion_matrix, columns=Y_CLASSES, index=Y_CLASSES)
+    df_test = pd.DataFrame(data=measures).transpose()
 
     print(confusion_matrix)
 
