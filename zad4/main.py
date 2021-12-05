@@ -12,7 +12,7 @@ Y_CLASSES = ["unacc", "acc", "good", "vgood"]
 # dataset = "data/example.data"
 # ATTRIBUTES = ['x1', 'x2']
 # Y_ATTRIBUTE = 'y'
-# Y_CLASSES = ['0', '1']
+# Y_CLASSES = [0, 1]
 
 
 class Node:
@@ -139,6 +139,48 @@ def predict(node: Node, row):
             return random.choice(Y_CLASSES)
 
 
+def float_decimal(value):
+    try:
+        v = int(value * 10000)
+        return float(v) / 10000
+    except:
+        return '-'
+
+
+def measure_dict(tp: int, fn: int, fp: int, tn: int) -> dict:
+    precision = 0
+    if tp + fp:
+        precision = tp / (tp + fp)
+
+    recall = 0
+    if tp + fn:
+        recall = tp / (tp + fn)
+
+    fallout = 0
+    if fp + tn:
+        fallout = fp / (fp + tn)
+
+    accuracy = 0
+    if tp + tn + fp + fn:
+        accuracy = (tp + tn) / (tp + tn + fp + fn)
+
+    f1_score = 0
+    if recall + precision:
+        f1_score = (2 * precision * recall) / (recall + precision)
+
+    return {
+        "tp": tp,
+        "fn": fn,
+        "fp": fp,
+        "tn": tn,
+        "recall": float_decimal(recall),
+        "fallout": float_decimal(fallout),
+        "precision": float_decimal(precision),
+        "accuracy": float_decimal(accuracy),
+        "f1-score": float_decimal(f1_score),
+    }
+
+
 def calculate_measures(confusion_matrix):
     measures = {}
 
@@ -148,22 +190,24 @@ def calculate_measures(confusion_matrix):
         fp = sum(confusion_matrix[:, index]) - tp
         tn = np.sum(confusion_matrix) - fn - fp - tp
 
-        precision = tp / (tp + fp)
-        recall = tp / (tp + fn)
-
-        measures[y_class] = {
-            # 'tp': tp,
-            # 'fn': fn,
-            # 'fp': fp,
-            # 'tn': tn,
-            "recall": recall,
-            "fallout": fp / (fp + tn),
-            "precision": precision,
-            "accuracy": (tp + tn) / (tp + tn + fp + fn),
-            "f1-score": (2 * precision * recall) / (recall + precision),
-        }
+        measures[y_class] = measure_dict(tp, fn, fp, tn)
 
     return measures
+
+
+def calculate_measures_all(measures: dict):
+    tp = 0
+    fn = 0
+    fp = 0
+    tn = 0
+
+    for attribute, measure in measures.items():
+        tp += measure["tp"]
+        fn += measure["fn"]
+        fp += measure["fp"]
+        tn += measure["tn"]
+
+    return measure_dict(tp, fn, fp, tn)
 
 
 def shuffle_data(data):
@@ -190,13 +234,19 @@ def split_data(data, k: int, index: int = 0):
 
 def main():
     data = read_data(ATTRIBUTES)
-    data = shuffle_data(data)
+    # data = shuffle_data(data)
 
-    train_data, test_data = split_data(data, 4, 0)
+    k = 3
 
-    root_node = id3(train_data, ATTRIBUTES)
-    # print_tree(root_node)
+    for i in range(k):
+        train_data, test_data = split_data(data, k, i)
+        root_node = id3(train_data, ATTRIBUTES)
+        # print_tree(root_node)
 
+        predict_test_data(root_node, test_data)
+
+
+def predict_test_data(root_node, test_data):
     confusion_matrix = np.zeros((len(Y_CLASSES), len(Y_CLASSES)))
 
     for index, row in test_data.iterrows():
@@ -212,15 +262,17 @@ def main():
             print("No prediction")
 
     measures = calculate_measures(confusion_matrix)
-    for measure in measures:
-        print(measure, measures[measure])
+    # for measure in measures:
+    #     print(measure, measures[measure])
 
     df_confusion_matrix = pd.DataFrame(
         data=confusion_matrix, columns=Y_CLASSES, index=Y_CLASSES
     )
-    df_test = pd.DataFrame(data=measures).transpose()
+    df_measures = pd.DataFrame(data=measures).transpose()
+    df_measures_all = calculate_measures_all(measures)
+    print(df_measures_all)
 
-    print(confusion_matrix)
+    # print(confusion_matrix)
 
 
 if __name__ == "__main__":
