@@ -5,9 +5,12 @@ import numpy as np
 import pandas as pd
 
 dataset = "data/car.data"
+# dataset = "data/show3.data"
 ATTRIBUTES = ["buying", "maint", "doors", "persons", "lug_boot", "safety"]
 Y_ATTRIBUTE = "class"
 Y_CLASSES = ["unacc", "acc", "good", "vgood"]
+
+attribute_classes = {}
 
 # dataset = "data/example.data"
 # ATTRIBUTES = ['x1', 'x2']
@@ -86,7 +89,8 @@ def id3(df, attributes):
     if best_attribute is None:
         return node
 
-    unique_values = np.unique(df[best_attribute])
+    unique_values = attribute_classes[best_attribute]
+
     for unique_value in unique_values:
         sub_df = df.where(df[best_attribute] == unique_value)
         sub_df = sub_df.dropna()
@@ -95,7 +99,21 @@ def id3(df, attributes):
             new_node = Node()
             new_node.is_leaf = True
 
-            new_node.predictions = np.unique(sub_df[Y_ATTRIBUTE])[0]
+            predictions = np.unique(sub_df[Y_ATTRIBUTE])
+            if predictions:
+                new_node.predictions = predictions[0]
+            else:
+                new_node.predictions = random.choice(Y_CLASSES)
+                t = np.unique(df[Y_ATTRIBUTE], return_counts=True)
+                best = 0
+                best_attr_2 = t[0][0]
+                for i in range(len(t[0])):
+                    if t[1][i] > best:
+                        best = t[1][i]
+                        best_attr_2 = t[0][i]
+
+                new_node.predictions = best_attr_2
+
             node.children[str(unique_value)] = new_node
         else:
             new_attributes = attributes.copy()
@@ -136,7 +154,7 @@ def predict(node: Node, row):
             if key == value:
                 return predict(child, row)
         else:
-            return random.choice(Y_CLASSES)
+            raise NotImplementedError()
 
 
 def float_decimal(value):
@@ -232,11 +250,21 @@ def split_data(data, k: int, index: int = 0):
     return train_data, test_data
 
 
+def set_attribute_classes(data, attributes: list[str]) -> None:
+    for attribute in ATTRIBUTES:
+        attribute_classes[attribute] = np.unique(data[attribute])
+
+
 def main():
     data = read_data(ATTRIBUTES)
-    # data = shuffle_data(data)
+    data = shuffle_data(data)
 
-    k = 3
+    set_attribute_classes(data, ATTRIBUTES)
+
+    # root_node = id3(data, ATTRIBUTES)
+    # print_tree(root_node)
+
+    k = 4
 
     for i in range(k):
         train_data, test_data = split_data(data, k, i)
@@ -270,7 +298,9 @@ def predict_test_data(root_node, test_data):
     )
     df_measures = pd.DataFrame(data=measures).transpose()
     df_measures_all = calculate_measures_all(measures)
-    print(df_measures_all)
+    # print(df_measures_all)
+    # print(1)
+    print(f'{df_measures_all["recall"]} & {df_measures_all["fallout"]} & {df_measures_all["precision"]} & {df_measures_all["accuracy"]} & {df_measures_all["f1-score"]} \\\\')
 
     # print(confusion_matrix)
 
