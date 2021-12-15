@@ -1,6 +1,7 @@
 import random
 from typing import Optional
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -162,7 +163,7 @@ def float_decimal(value):
         v = int(value * 10000)
         return float(v) / 10000
     except:
-        return '-'
+        return "-"
 
 
 def measure_dict(tp: int, fn: int, fp: int, tn: int) -> dict:
@@ -255,15 +256,67 @@ def set_attribute_classes(data, attributes: list[str]) -> None:
         attribute_classes[attribute] = np.unique(data[attribute])
 
 
+def draw_histogram_for_attribute(data, attribute: str) -> None:
+    d = {}
+
+    for a in ATTRIBUTES:
+        unique_values = attribute_classes[a]
+        d[a] = {}
+
+        for u in unique_values:
+            d[a][u] = {
+                'unacc': 0,
+                'acc': 0,
+                'good': 0,
+                'vgood': 0
+            }
+
+            sub_df = data.where(data[a] == u)
+            sub_df = sub_df.dropna()
+
+            for index, row in sub_df.iterrows():
+                s = row[Y_ATTRIBUTE]
+                d[a][u][s] += 1
+
+    classes_for_attribute = d[attribute].keys()
+    values_for_attribute = d[attribute].values()
+
+    w = [[0 for x in range(len(values_for_attribute))] for x in range(len(Y_CLASSES))]
+    for index_w, x in enumerate(values_for_attribute):
+        i = 0
+        for index, key in x.items():
+            w[i][index_w] += key
+            i += 1
+
+    values = w
+
+    print(d[attribute])
+
+    n = len(values)
+    w = .15
+    x = np.arange(0, len(classes_for_attribute))
+
+    for i, value in enumerate(values):
+        position = x + (w * (1 - n) / 2) + i * w
+        plt.bar(position, value, width=w, label=f'{Y_CLASSES[i]}')
+
+    plt.xticks(x, classes_for_attribute)
+    plt.title(attribute)
+
+    plt.legend()
+    plt.show()
+
+
 def main():
     data = read_data(ATTRIBUTES)
     data = shuffle_data(data)
 
     set_attribute_classes(data, ATTRIBUTES)
+    # draw_histogram_for_attribute(data, ATTRIBUTES[0])
+    # data = data.sort_values(Y_ATTRIBUTE)
 
     # root_node = id3(data, ATTRIBUTES)
     # print_tree(root_node)
-
     k = 4
 
     for i in range(k):
@@ -298,11 +351,8 @@ def predict_test_data(root_node, test_data):
     )
     df_measures = pd.DataFrame(data=measures).transpose()
     df_measures_all = calculate_measures_all(measures)
-    # print(df_measures_all)
-    # print(1)
-    print(f'{df_measures_all["recall"]} & {df_measures_all["fallout"]} & {df_measures_all["precision"]} & {df_measures_all["accuracy"]} & {df_measures_all["f1-score"]} \\\\')
-
-    # print(confusion_matrix)
+    print(df_measures_all)
+    print(confusion_matrix)
 
 
 if __name__ == "__main__":
