@@ -64,7 +64,7 @@ def train(
 def play(game_map: GameMap, q_table: np.array) -> None:
     game_map.reset()
     finished = False
-    state_index = 0
+    state_index = game_map.convert_point_to_state_index(game_map.start_point)
     reward = 0
     epochs = 0
     while not finished:
@@ -104,7 +104,7 @@ def play_random(game_map: GameMap) -> None:
 
 
 def main():
-    game_map = open_map("maps/1.txt")
+    game_map = open_map("maps/2.txt")
     # play_random(game_map)
 
     q_table = train(game_map)

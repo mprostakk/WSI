@@ -22,7 +22,7 @@ class GameMap:
         if point[0] < 0 or point[1] < 0:
             return False
 
-        if point[0] >= self.width or point[1] >= self.length:
+        if point[0] >= self.length or point[1] >= self.width:
             return False
 
         if self.state[point[0]][point[1]] != "B":
