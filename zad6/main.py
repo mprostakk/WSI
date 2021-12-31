@@ -1,10 +1,10 @@
 import random
 
 import numpy as np
-
+import pygame
 from action import Action
 from gamemap import GameMap
-from helpers import open_map
+from helpers import MapPygame, open_map
 
 
 def create_q_table(state_len: int, action_len: int) -> np.array:
@@ -61,7 +61,7 @@ def train(
     return q_table
 
 
-def play(game_map: GameMap, q_table: np.array) -> None:
+def play(map_pygame: MapPygame, game_map: GameMap, q_table: np.array) -> None:
     game_map.reset()
     finished = False
     state_index = game_map.convert_point_to_state_index(game_map.start_point)
@@ -79,6 +79,9 @@ def play(game_map: GameMap, q_table: np.array) -> None:
         print(reward)
         epochs += 1
         game_map.render()
+
+        map_pygame.draw_map(game_map, q_table)
+        pygame.time.wait(200)
 
     print(f"Finished with {epochs} epochs")
 
@@ -104,11 +107,18 @@ def play_random(game_map: GameMap) -> None:
 
 
 def main():
-    game_map = open_map("maps/2.txt")
+    pygame.init()
+    pygame.font.init()
+    map_pygame = MapPygame()
+
+    game_map = open_map("maps/1.txt")
     # play_random(game_map)
 
     q_table = train(game_map)
-    play(game_map, q_table)
+    play(map_pygame, game_map, q_table)
+
+    pygame.time.wait(50000)
+    pygame.quit()
 
 
 if __name__ == "__main__":

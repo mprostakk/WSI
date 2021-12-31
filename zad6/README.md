@@ -5,8 +5,6 @@
 
 ## TODO
 - DFS do generowania labiryntu
-- inna mapa niż 8x8
-- rysowanie planszy w pygame
 - dodatkowego kryterium stopu jak np. limit nagród czy maksymalna liczba kroków
 - dziury na planszy lepiej jest zdefiniować jako prawdopodobieństwo 
 ich wystąpienia (tzn. współczynnik) niż wartość bezwzględną?

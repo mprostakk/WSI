@@ -1,5 +1,6 @@
 from copy import deepcopy
 from dataclasses import dataclass
+from typing import List
 
 from action import Action
 from my_types import Point, State
@@ -70,3 +71,13 @@ class GameMap:
         for row in state:
             print(row)
         print()
+
+    def get_wall_points(self) -> List[Point]:
+        points = []
+
+        for index, row in enumerate(self.state):
+            for index_2, ch in enumerate(row):
+                if ch == "B":
+                    points.append((index, index_2))
+
+        return points
