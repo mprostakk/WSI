@@ -1,10 +1,11 @@
 import random
+from random import randrange
 from typing import List, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pygame
-from random import randrange
+
 from action import Action
 from gamemap import GameMap
 from helpers import MapPygame, open_map
@@ -42,18 +43,19 @@ def train(
     q_table = create_q_table(number_of_states, number_of_actions)
     all_steps = []
 
-    for episode in range(episodes):
+    for episode in range(1, episodes):
         game_map.reset()
         state_index = game_map.convert_point_to_state_index(game_map.start_point)
         finished = False
 
-        if episode % 100 == 0:
-            print(episode)
+        if episode % 10 == 0:
+            print(all_steps[-1], episode)
 
         steps = 0
         while not finished:
             if steps > max_number_of_turns:
-                raise TurnException()
+                finished = True
+                continue
 
             if should_explore(epsilon):
                 action = Action.random()
@@ -123,35 +125,33 @@ def play_random(game_map: GameMap) -> None:
     print(f"Finished with {steps} steps")
 
 
-def plot_steps(steps: List[int], learning_rate: float,
-               epsilon: float,
-               gamma: float):
+def plot_steps(steps: List[int], learning_rate: float, epsilon: float, gamma: float):
     # plt.yscale('log')
     plt.plot(steps)
 
-    plt.title(
-        f"Lr={learning_rate}, epsilon={epsilon}, gamma={gamma}"
-    )
+    plt.title(f"Lr={learning_rate}, epsilon={epsilon}, gamma={gamma}")
     plt.xlabel("Episodes")
     plt.ylabel("Steps")
     plt.show()
 
 
-def random_generate_map(length: int, width: int, start_point: Optional[Point] = None, end_point: Optional[Point] = None):
-    m = [['-']*width for _ in range(length)]
+def random_generate_map(
+    length: int, width: int, start_point: Optional[Point] = None, end_point: Optional[Point] = None
+):
+    m = [["-"] * width for _ in range(length)]
 
     for row in m:
         for i in range(len(row)):
             if should_explore(0.4):
-                row[i] = 'B'
+                row[i] = "B"
 
     if start_point is None:
         start_point = (randrange(0, length), randrange(0, width))
     if end_point is None:
         end_point = (randrange(0, length), randrange(0, width))
 
-    m[start_point[0]][start_point[1]] = 'S'
-    m[end_point[0]][end_point[1]] = 'E'
+    m[start_point[0]][start_point[1]] = "S"
+    m[end_point[0]][end_point[1]] = "E"
 
     return m
 
@@ -161,17 +161,24 @@ def check_if_solution_exists_for_map(m):
 
 
 def main():
-    game_map = open_map("maps/1.txt")
+    game_map = open_map("maps/3.txt")
 
     # play_random(game_map)
-    learning_rate = 1
+    learning_rate = 0.1
     epsilon = 0.1
-    gamma = 0.2
+    gamma = 1.0
 
     try:
-        q_table, steps = train(game_map, episodes=200, learning_rate=learning_rate, epsilon=epsilon, gamma=gamma)
+        q_table, steps = train(
+            game_map,
+            episodes=1000,
+            learning_rate=learning_rate,
+            epsilon=epsilon,
+            gamma=gamma,
+            max_number_of_turns=10000,
+        )
     except TurnException:
-        pass
+        print("Error")
 
     plot_steps(steps, learning_rate, epsilon, gamma)
 

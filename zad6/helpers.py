@@ -2,6 +2,7 @@ import math
 
 import numpy as np
 import pygame
+
 from action import Action
 from gamemap import GameMap
 from my_types import Point
@@ -46,7 +47,7 @@ class MapPygame:
             (0, 255, 0),
             (255, 0, 0),
         )
-        self.size = self.screen_size // 8
+        self.size = self.screen_size // 20
         self.game_display = pygame.display.set_mode((self.screen_size, self.screen_size))
         self.font = pygame.font.SysFont("helvetica", 30)
 
