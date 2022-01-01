@@ -15,3 +15,9 @@ ich wystąpienia (tzn. współczynnik) niż wartość bezwzględną?
 - wpływ zmiany parametrów na działanie algorytmu. 
 - pokazać że model się nauczył
 - pokazanie, że agent nauczył się najkrótszej trasy do celu.
+
+
+## Dodatkowe
+- wykres (w trakcie nauki liczyć ilość turns)
+- rysować w trakcie trenowania strzałki
+- rysować w kwadracie 4 strzałki

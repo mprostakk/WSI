@@ -27,6 +27,7 @@ def train(
     learning_rate: float = 0.1,
     epsilon: float = 0.1,
     gamma: float = 0.6,
+    max_number_of_turns: int = 10000,
 ) -> np.array:
     number_of_states = game_map.width * game_map.length
     number_of_actions = 4
@@ -40,7 +41,8 @@ def train(
         if epoch % 100 == 0:
             print(epoch)
 
-        while not finished:
+        turns = 0
+        while not finished and turns < max_number_of_turns:
             if should_explore(epsilon):
                 action = Action.random()
             else:
@@ -57,6 +59,7 @@ def train(
 
             state_index = step.next_state_index
             finished = step.finished
+            turns += 1
 
     return q_table
 
@@ -117,7 +120,7 @@ def main():
     q_table = train(game_map)
     play(map_pygame, game_map, q_table)
 
-    pygame.time.wait(50000)
+    pygame.time.wait(10000)
     pygame.quit()
 
 

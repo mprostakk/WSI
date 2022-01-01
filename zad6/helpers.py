@@ -53,8 +53,8 @@ class MapPygame:
     def draw_map(self, game_map: GameMap, q_table: np.array) -> None:
         self.game_display.fill(self.black)
 
-        for x in range(game_map.length):
-            for y in range(x % 2, game_map.width, 2):
+        for x in range(game_map.width):
+            for y in range(x % 2, game_map.length, 2):
                 pygame.draw.rect(
                     self.game_display,
                     self.dark_grey,
@@ -94,13 +94,13 @@ class MapPygame:
                 (wall_point[1] * s, wall_point[0] * s, s, s),
             )
 
-        for i in range(game_map.length):
-            for j in range(game_map.width):
-                p = (i, j)
+        for i in range(game_map.width):
+            for j in range(game_map.length):
+                p = (j, i)
                 state_index = game_map.convert_point_to_state_index(p)
                 action = Action(q_table[state_index].argmax() + 1)
                 draw_arrow_2(
-                    self.game_display, (150, 150, 150), (j * s + s // 2, i * s + s // 2), action
+                    self.game_display, (150, 150, 150), (i * s + s // 2, j * s + s // 2), action
                 )
 
         pygame.display.update()
@@ -118,11 +118,11 @@ def draw_arrow_2(screen, color, position: Point, action: Action):
         flip = True
     elif action == Action.DOWN:
         y = 10
-    elif action.LEFT:
-        x = 10
-    else:
+    elif action == action.LEFT:
         x = 10
         flip = True
+    else:
+        x = 10
 
     p1 = (p1[0] - x, p1[1] - y)
     p2 = (p2[0] + x, p2[1] + y)
