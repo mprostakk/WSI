@@ -4,10 +4,9 @@
 
 
 ## TODO
-- DFS do generowania labiryntu
 
 ## Raport
-- wpływ zmiany parametrów na działanie algorytmu.
+
 
 ## Dodatkowe
 - rysować w trakcie trenowania strzałki

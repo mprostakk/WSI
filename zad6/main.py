@@ -1,6 +1,5 @@
 import random
-from random import randrange
-from typing import List, Optional
+from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,7 +8,7 @@ import pygame
 from action import Action
 from gamemap import GameMap
 from helpers import MapPygame, open_map
-from my_types import Point
+from map_generator import random_generate_map
 
 
 class TurnException(Exception):
@@ -106,7 +105,7 @@ def play(map_pygame: MapPygame, game_map: GameMap, q_table: np.array) -> None:
     print(f"Finished with {steps} steps")
 
 
-def play_random(game_map: GameMap) -> None:
+def play_random(game_map: GameMap) -> int:
     game_map.reset()
     finished = False
     reward = 0
@@ -116,14 +115,10 @@ def play_random(game_map: GameMap) -> None:
         step = game_map.move(action)
 
         reward += step.reward
-        print(action)
-        print(reward)
-        game_map.render()
-
         steps += 1
         finished = step.finished
 
-    print(f"Finished with {steps} steps")
+    return steps
 
 
 def plot_steps(steps: List[int], learning_rate: float, epsilon: float, discount_factor: float):
@@ -136,50 +131,38 @@ def plot_steps(steps: List[int], learning_rate: float, epsilon: float, discount_
     plt.show()
 
 
-def random_generate_map(
-    length: int, width: int, start_point: Optional[Point] = None, end_point: Optional[Point] = None
-):
-    m = [["-"] * width for _ in range(length)]
-
-    for row in m:
-        for i in range(len(row)):
-            if should_explore(0.4):
-                row[i] = "B"
-
-    if start_point is None:
-        start_point = (randrange(0, length), randrange(0, width))
-    if end_point is None:
-        end_point = (randrange(0, length), randrange(0, width))
-
-    m[start_point[0]][start_point[1]] = "S"
-    m[end_point[0]][end_point[1]] = "E"
-
-    return m
+def random_map():
+    m = random_generate_map(5, 5, start_point=(0, 0), end_point=(4, 4), epsilon=0.9)
+    m.render()
 
 
-def check_if_solution_exists_for_map(m):
-    pass
+def random_agent(game_map: GameMap):
+    all_steps = []
+    for _ in range(500):
+        steps = play_random(game_map)
+        all_steps.append(steps)
+
+    plot_steps(all_steps, 1, 1, 1)
 
 
 def main():
-    game_map = open_map("maps/3.txt")
+    game_map = open_map("maps/1.txt")
 
-    # play_random(game_map)
     learning_rate = 0.1
     epsilon = 0.1
-    discount_factor = 0.5
+    discount_factor = 1.0
 
     try:
         q_table, steps = train(
             game_map,
-            episodes=1000,
+            episodes=500,
             learning_rate=learning_rate,
             epsilon=epsilon,
             discount_factor=discount_factor,
             max_number_of_turns=10000,
         )
     except TurnException:
-        print("Error")
+        print("Turn error")
 
     plot_steps(steps, learning_rate, epsilon, discount_factor)
 

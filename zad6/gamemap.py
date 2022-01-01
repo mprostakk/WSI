@@ -81,3 +81,15 @@ class GameMap:
                     points.append((index, index_2))
 
         return points
+
+    def get_new_points(self) -> List[Point]:
+        points = [
+            Action.get_new_point(self.current_point, Action.UP),
+            Action.get_new_point(self.current_point, Action.DOWN),
+            Action.get_new_point(self.current_point, Action.RIGHT),
+            Action.get_new_point(self.current_point, Action.LEFT),
+        ]
+
+        points = [x for x in points if self.check_move(x)]
+
+        return points
