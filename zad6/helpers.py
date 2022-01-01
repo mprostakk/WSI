@@ -47,7 +47,7 @@ class MapPygame:
             (255, 0, 0),
         )
         self.size = self.screen_size // 8
-        self.game_display = pygame.display.set_mode((self.screen_size + 200, self.screen_size))
+        self.game_display = pygame.display.set_mode((self.screen_size, self.screen_size))
         self.font = pygame.font.SysFont("helvetica", 30)
 
     def draw_map(self, game_map: GameMap, q_table: np.array) -> None:
