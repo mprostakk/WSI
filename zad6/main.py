@@ -35,7 +35,7 @@ def train(
     episodes: int = 10000,
     learning_rate: float = 0.1,
     epsilon: float = 0.1,
-    gamma: float = 0.6,
+    discount_factor: float = 0.6,
     max_number_of_turns: int = 10000,
 ) -> np.array:
     number_of_states = game_map.width * game_map.length
@@ -66,9 +66,10 @@ def train(
             old_value = q_table[state_index][action.value - 1]
             next_max = q_table[step.next_state_index].max()
 
-            new_value = (1 - learning_rate) * old_value + learning_rate * (
-                step.reward + gamma * next_max
+            new_value = old_value + learning_rate * (
+                step.reward + discount_factor * next_max - old_value
             )
+
             q_table[state_index, action.value - 1] = new_value
 
             state_index = step.next_state_index
@@ -125,11 +126,11 @@ def play_random(game_map: GameMap) -> None:
     print(f"Finished with {steps} steps")
 
 
-def plot_steps(steps: List[int], learning_rate: float, epsilon: float, gamma: float):
+def plot_steps(steps: List[int], learning_rate: float, epsilon: float, discount_factor: float):
     # plt.yscale('log')
     plt.plot(steps)
 
-    plt.title(f"Lr={learning_rate}, epsilon={epsilon}, gamma={gamma}")
+    plt.title(f"Lr={learning_rate}, epsilon={epsilon}, discount_factor={discount_factor}")
     plt.xlabel("Episodes")
     plt.ylabel("Steps")
     plt.show()
@@ -166,7 +167,7 @@ def main():
     # play_random(game_map)
     learning_rate = 0.1
     epsilon = 0.1
-    gamma = 1.0
+    discount_factor = 0.5
 
     try:
         q_table, steps = train(
@@ -174,13 +175,13 @@ def main():
             episodes=1000,
             learning_rate=learning_rate,
             epsilon=epsilon,
-            gamma=gamma,
+            discount_factor=discount_factor,
             max_number_of_turns=10000,
         )
     except TurnException:
         print("Error")
 
-    plot_steps(steps, learning_rate, epsilon, gamma)
+    plot_steps(steps, learning_rate, epsilon, discount_factor)
 
     pygame.init()
     pygame.font.init()
