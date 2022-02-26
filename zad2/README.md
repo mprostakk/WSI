@@ -1,18 +1,10 @@
-# Zad2
-
+# Genetic algorithm
 ## Algorytmy genetyczne i ewolucyjne
 
 - Algorytm ewolucyjny
 - bez krzyżowania
 - z selekcją turniejową
 - z sukcesją generacyjną
-
-## Raport
-Jak zmiana liczby osobników w populacji wpływa na jakość uzyskanych 
-rozwiązań przy ograniczonym budżecie
-
-Opisać zachowanie algorytmu dla różnych rodzajów danych wejściowych 
-oraz wpływ zmiany parametrów
 
 ## Sukcesja
 Dodatkowo startowa liczność populacji powinna być znacznie większa 
@@ -31,6 +23,3 @@ Sugerowane grafy:
 - graf pełny, 
 - graf dwudzielny, 
 - graf losowy (graf pełny z usuniętymi 50-70% krawędzi)
-
-## TODO
-- Zapisać min / max / standardowe odchylenie

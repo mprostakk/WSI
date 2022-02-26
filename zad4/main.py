@@ -6,17 +6,11 @@ import numpy as np
 import pandas as pd
 
 dataset = "data/car.data"
-# dataset = "data/show3.data"
 ATTRIBUTES = ["buying", "maint", "doors", "persons", "lug_boot", "safety"]
 Y_ATTRIBUTE = "class"
 Y_CLASSES = ["unacc", "acc", "good", "vgood"]
 
 attribute_classes = {}
-
-# dataset = "data/example.data"
-# ATTRIBUTES = ['x1', 'x2']
-# Y_ATTRIBUTE = 'y'
-# Y_CLASSES = [0, 1]
 
 
 class Node:

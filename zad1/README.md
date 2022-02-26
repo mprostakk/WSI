@@ -1,14 +1,10 @@
-# Zagadnienie przeszukiwania
-
+# Gradient Descent
+## Zagadnienie przeszukiwania
 ### Minimalizacja fukcji celu
 
 ### Dwie metody:
 - metoda najszybszego spadku gradientu
 - metody netwona
-
-# TODO - Kod
-- Rysowanie wartości kolorów
-- Dodać warunek stopu epsilon
 
 ## Metody
 ### Steepest Gradient Descent
